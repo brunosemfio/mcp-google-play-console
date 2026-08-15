@@ -127,4 +127,4 @@ cobertura mínima de 65% em Python 3.10 e 3.12.
 - Apps com poucos usuários podem retornar zero linhas de vitals (limiar de dados do Play) — use `get_metric_set_freshness` para distinguir "sem dados ainda" de "abaixo do limiar".
 - Tudo é somente leitura — o servidor não expõe nenhuma operação de escrita no Play Console.
 - Os CSVs do Play são majoritariamente UTF-16 (com BOM); o `download_stats_report` detecta o BOM e decodifica UTF-16 ou UTF-8 automaticamente, e devolve as linhas já parseadas em JSON (com flag `truncated` quando `max_rows` é atingido).
-- O tamanho do arquivo é verificado nos metadados **antes** do download (`max_bytes`, até 10 MB).
+- O tamanho do arquivo é verificado nos metadados **antes** do download e revalidado nos bytes recebidos **depois** dele, inclusive após descompressão de `.gz` (`max_bytes`, até 10 MB).
