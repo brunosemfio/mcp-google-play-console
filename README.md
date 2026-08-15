@@ -65,21 +65,22 @@ Para service accounts, o acesso ao bucket é concedido automaticamente quando a 
 
 ## Instalação e uso
 
+### Direto do GitHub (recomendado)
+
+Com [uv](https://docs.astral.sh/uv/) instalado, não é preciso clonar nada —
+o `uvx` baixa, instala e executa o servidor a partir deste repositório:
+
 ```bash
-cd claude
-python -m venv .venv && source .venv/bin/activate
-pip install -e .
-play-console-mcp            # stdio (padrão)
-play-console-mcp --transport streamable-http --port 8000
+uvx --from git+https://github.com/brunosemfio/mcp-google-play-console.git play-console-mcp
 ```
 
-### Registrar no Claude Code
+Registrando no Claude Code:
 
 ```bash
 claude mcp add google-play-console \
   --env GOOGLE_APPLICATION_CREDENTIALS=/caminho/para/chave.json \
   --env PLAY_CONSOLE_GCS_BUCKET=pubsite_prod_rev_0123... \
-  -- /caminho/para/claude/.venv/bin/play-console-mcp
+  -- uvx --from git+https://github.com/brunosemfio/mcp-google-play-console.git play-console-mcp
 ```
 
 Ou em um `mcp.json` genérico:
@@ -88,7 +89,12 @@ Ou em um `mcp.json` genérico:
 {
   "mcpServers": {
     "google-play-console": {
-      "command": "/caminho/para/claude/.venv/bin/play-console-mcp",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/brunosemfio/mcp-google-play-console.git",
+        "play-console-mcp"
+      ],
       "env": {
         "GOOGLE_APPLICATION_CREDENTIALS": "/caminho/para/chave.json",
         "PLAY_CONSOLE_GCS_BUCKET": "pubsite_prod_rev_0123..."
@@ -97,6 +103,24 @@ Ou em um `mcp.json` genérico:
   }
 }
 ```
+
+O `uvx` faz cache do build: para atualizar após novos commits, rode o comando
+uma vez com `--refresh`. Para fixar uma versão, aponte para uma tag ou commit:
+`git+https://...@<tag-ou-sha>`.
+
+### A partir de um clone local (desenvolvimento)
+
+```bash
+git clone https://github.com/brunosemfio/mcp-google-play-console.git
+cd mcp-google-play-console
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+play-console-mcp            # stdio (padrão)
+play-console-mcp --transport streamable-http --port 8000
+```
+
+Nesse caso, registre apontando para o binário do venv:
+`claude mcp add google-play-console ... -- /caminho/do/clone/.venv/bin/play-console-mcp`
 
 ## Desenvolvimento
 
