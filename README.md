@@ -101,9 +101,17 @@ Ou em um `mcp.json` genérico:
 ## Desenvolvimento
 
 ```bash
-pip install -e '.[dev]'
-pytest
+uv sync --extra dev          # ou: pip install -e '.[dev]'
+uv run pytest                # testes unitários (offline, com fakes)
+uv run ruff check play_console_mcp tests
+uv run mypy play_console_mcp
+
+# Testes de integração (batem na API real; precisam de credenciais):
+GOOGLE_APPLICATION_CREDENTIALS=/caminho/chave.json uv run pytest -m integration
 ```
+
+O CI (GitHub Actions, branch `main`) roda ruff, mypy e a suíte unitária com
+cobertura mínima de 65% em Python 3.10 e 3.12.
 
 ## Exemplos de perguntas
 
@@ -113,7 +121,10 @@ pytest
 
 ## Notas
 
+- Datas (`start_date`/`end_date`) são **inclusivas** nas duas pontas: o servidor converte para os end times exclusivos da API somando um dia, então consultar um único dia (`start = end`) funciona. Datas inexistentes (ex. `2026-02-30`) e intervalos invertidos falham localmente com mensagem clara.
 - A agregação diária da Reporting API é ancorada no fuso `America/Los_Angeles` (padrão da API); a horária, em UTC.
+- `PLAY_CONSOLE_GCS_BUCKET` aceita o nome do bucket ou a URI completa copiada do Play Console (`gs://pubsite_prod_rev_.../stats/installs/`).
+- Apps com poucos usuários podem retornar zero linhas de vitals (limiar de dados do Play) — use `get_metric_set_freshness` para distinguir "sem dados ainda" de "abaixo do limiar".
 - Tudo é somente leitura — o servidor não expõe nenhuma operação de escrita no Play Console.
 - Os CSVs do Play são majoritariamente UTF-16 (com BOM); o `download_stats_report` detecta o BOM e decodifica UTF-16 ou UTF-8 automaticamente, e devolve as linhas já parseadas em JSON (com flag `truncated` quando `max_rows` é atingido).
 - O tamanho do arquivo é verificado nos metadados **antes** do download (`max_bytes`, até 10 MB).

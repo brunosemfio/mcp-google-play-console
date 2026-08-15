@@ -51,6 +51,10 @@ def test_rejects_unknown_metric_set_and_invalid_package():
 def test_date_time_rejects_bad_date():
     with pytest.raises(api.PlayConsoleApiError, match="YYYY-MM-DD"):
         api.date_time("01/08/2026", "UTC")
+    with pytest.raises(api.PlayConsoleApiError, match="YYYY-MM-DD"):
+        api.date_time("2026-02-30", "UTC")
+    with pytest.raises(api.PlayConsoleApiError, match="YYYY-MM-DD"):
+        api.date_time("2026-13-01", "UTC")
 
 
 def test_single_day_query_gets_exclusive_end_time(monkeypatch):

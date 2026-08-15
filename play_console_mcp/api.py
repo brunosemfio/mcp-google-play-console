@@ -72,11 +72,14 @@ def storage_download(bucket: str, object_name: str) -> bytes:
 
 def date_time(date: str, time_zone: str) -> dict[str, Any]:
     """Convert an ISO date string (YYYY-MM-DD) into the API's DateTime shape."""
+    from datetime import date as date_type
+
     try:
         year, month, day = (int(part) for part in date.split("-"))
+        date_type(year, month, day)  # rejects impossible dates like 2026-02-30
     except ValueError as exc:
         raise PlayConsoleApiError(
-            f"Invalid date {date!r}: expected YYYY-MM-DD"
+            f"Invalid date {date!r}: expected an existing YYYY-MM-DD date"
         ) from exc
     return {
         "year": year,
